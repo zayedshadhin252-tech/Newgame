@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zayed & Sana's World</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --cream:#FAF7F2; --rose:#F2E3DF; --sage:#D4DFD2; --charcoal:#4A4D4E; }
+    body { font-family:'Nunito',sans-serif; background:var(--cream); color:var(--charcoal); }
+    .glass { background:rgba(255,255,255,0.46); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.7); box-shadow:0 8px 30px rgba(0,0,0,0.05); }
+    .view { display:none; }
+    .view.active { display:flex; flex-direction:column; }
+    .btn { transition:all .2s ease; }
+    .btn:active { transform:scale(.96); }
+    input[type="range"] { -webkit-appearance:none; width:100%; background:transparent; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:999px; background:#fff; border:2px solid var(--charcoal); }
+    input[type="range"]::-webkit-slider-runnable-track { height:4px; border-radius:999px; background:rgba(74,77,78,.15); }
+  </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6" id="body-bg">
+  <div class="mx-auto max-w-md min-h-[90vh] glass rounded-[2rem] p-5 sm:p-6 flex flex-col overflow-hidden">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-[0.2em]">ZAYED & SANA'S WORLD</h1>
+        <p class="text-sm text-charcoal/70">Online love game room for two</p>
+      </div>
+      <button id="audio-toggle" class="btn rounded-full p-2 hover:bg-white/60" onclick="AudioEngine.toggle()">🔊</button>
+    </header>
+
+    <main id="view-room" class="view active flex-1">
+      <div class="space-y-4">
+        <div class="glass rounded-3xl p-5">
+          <h2 class="text-xl font-semibold mb-2">Create or join a room</h2>
+          <p class="text-sm text-charcoal/70">One person creates a room and the other joins with the code.</p>
+        </div>
+        <div class="glass rounded-3xl p-5 space-y-3">
+          <button id="create-room" class="btn w-full rounded-2xl bg-charcoal text-white py-3">Create Room</button>
+          <div class="flex gap-2">
+            <input id="join-input" class="flex-1 rounded-2xl border border-charcoal/15 bg-white/70 px-3 py-3 outline-none" placeholder="Enter room code" />
+            <button id="join-room" class="btn rounded-2xl bg-white/70 px-4 py-3">Join</button>
+          </div>
+          <div id="room-status" class="text-sm text-charcoal/70">Waiting for your partner...</div>
+          <div class="rounded-2xl border border-charcoal/10 bg-white/50 p-3 text-center text-sm">
+            Room code: <span id="room-code" class="font-semibold">—</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <main id="view-menu" class="view flex-1">
+      <div class="glass rounded-3xl p-4 mb-4">
+        <p class="text-sm text-charcoal/70">Connected as <span id="role-label" class="font-semibold">Guest</span></p>
+        <div class="mt-2 flex gap-2">
+          <button onclick="App.chooseLevel('easy')" class="btn flex-1 rounded-2xl bg-white/60 py-2">Easy</button>
+          <button onclick="App.chooseLevel('medium')" class="btn flex-1 rounded-2xl bg-white/60 py-2">Medium</button>
+          <button onclick="App.chooseLevel('hard')" class="btn flex-1 rounded-2xl bg-white/60 py-2">Hard</button>
+        </div>
+      </div>
+      <div class="space-y-3 overflow-y-auto">
+        <button onclick="App.startGame('number')" class="btn glass w-full rounded-2xl p-4 text-left">
+          <div class="font-semibold">Number Drift</div>
+          <div class="text-sm text-charcoal/70">Guess the secret number with warmer and cooler clues.</div>
+        </button>
+        <button onclick="App.startGame('thought')" class="btn glass w-full rounded-2xl p-4 text-left">
+          <div class="font-semibold">Thought Match</div>
+          <div class="text-sm text-charcoal/70">Share a thought and see if your hearts match.</div>
+        </button>
+        <button onclick="App.startGame('color')" class="btn glass w-full rounded-2xl p-4 text-left">
+          <div class="font-semibold">Color Harmony</div>
+          <div class="text-sm text-charcoal/70">Create a mood and match it perfectly.</div>
+        </button>
+        <button onclick="App.startGame('mirror')" class="btn glass w-full rounded-2xl p-4 text-left">
+          <div class="font-semibold">Mirror Glow</div>
+          <div class="text-sm text-charcoal/70">Choose a vibe from both sides and blend it.</div>
+        </button>
+        <button onclick="App.startGame('heartbeat')" class="btn glass w-full rounded-2xl p-4 text-left">
+          <div class="font-semibold">Heartbeat Duel</div>
+          <div class="text-sm text-charcoal/70">Tap the pattern and keep the beat alive.</div>
+        </button>
+        <button onclick="App.startGame('star')" class="btn glass w-full rounded-2xl p-4 text-left">
+          <div class="font-semibold">Star Path</div>
+          <div class="text-sm text-charcoal/70">Find the same shining star your partner chose.</div>
+        </button>
+      </div>
+      <div class="mt-4">
+        <h3 class="text-sm font-semibold uppercase tracking-widest text-charcoal/50 mb-2">Moments</h3>
+        <div id="history-log" class="max-h-28 overflow-y-auto rounded-2xl bg-white/40 p-3 text-sm text-charcoal/70"></div>
+      </div>
+    </main>
+
+    <main id="view-game" class="view flex-1">
+      <div id="game-shell" class="flex-1"></div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+  <script>
+    const AudioEngine = {
+      ctx:null,
+      enabled:false,
+      timer:null,
+      notes:[261.63,329.63,392,440,392,329.63],
+      bass:[130.81,196,164.81,196],
+      index:0,
+      init(){ const AudioContext=window.AudioContext||window.webkitAudioContext; if(AudioContext) this.ctx=new AudioContext(); },
+      toggle(){ if(!this.ctx) this.init(); if(this.ctx&&this.ctx.state==='suspended') this.ctx.resume(); this.enabled=!this.enabled; if(this.enabled){ this.startAmbient(); this.playClick(); } else { this.stopAmbient(); } },
+      playTone(freq,duration,type,vol){ if(!this.enabled||!this.ctx) return; const osc=this.ctx.createOscillator(); const gain=this.ctx.createGain(); osc.type=type; osc.frequency.setValueAtTime(freq,this.ctx.currentTime); gain.gain.setValueAtTime(vol,this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+duration); osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime+duration); },
+      playClick(){ this.playTone(300,0.14,'sine',0.04); },
+      playChime(){ if(!this.enabled||!this.ctx) return; this.playTone(523.25,0.8,'sine',0.04); setTimeout(()=>this.playTone(659.25,0.8,'sine',0.04),140); setTimeout(()=>this.playTone(783.99,1.1,'sine',0.04),280); },
+      startAmbient(){ if(!this.ctx||this.timer) return; this.timer=setInterval(()=>{ this.playTone(this.notes[this.index%this.notes.length],0.85,'sine',0.03); this.playTone(this.bass[(this.index+1)%this.bass.length],1.1,'triangle',0.02); this.index+=1; },1800); },
+      stopAmbient(){ if(this.timer){ clearInterval(this.timer); this.timer=null; } }
+    };
+
+    const App = {
+      currentView:'room',
+      history:[],
+      level:'medium',
+      currentGame:'',
+      init(){ this.loadHistory(); this.nav('room'); document.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>AudioEngine.playClick())); },
+      nav(viewId){ document.querySelectorAll('.view').forEach(el=>el.classList.remove('active')); document.getElementById('view-'+viewId).classList.add('active'); this.currentView=viewId; },
+      saveMoment(text){ this.history.unshift(text); if(this.history.length>8) this.history.pop(); localStorage.setItem('zayed_sana_history',JSON.stringify(this.history)); this.renderHistory(); },
+      loadHistory(){ const stored=localStorage.getItem('zayed_sana_history'); if(stored) this.history=JSON.parse(stored); this.renderHistory(); },
+      renderHistory(){ const c=document.getElementById('history-log'); if(!this.history.length){ c.innerHTML='<p class="opacity-60">Your shared moments will appear here.</p>'; return; } c.innerHTML=this.history.map(item=>`<div class="border-b border-charcoal/10 py-1 last:border-0">${item}</div>`).join(''); },
+      chooseLevel(level){ this.level=level; document.getElementById('role-label').textContent=RoomManager.role==='host'?'Host':'Guest'; },
+      startGame(game){ if(!RoomManager.connected){ alert('Create or join a room first.'); return; } this.currentGame=game; RoomManager.send({type:'game-start', game, level:this.level}); this.renderGame(game); },
+      renderGame(game){ this.nav('game'); const shell=document.getElementById('game-shell'); if(game==='number'){ shell.innerHTML=NumberDrift.render(); return; } if(game==='thought'){ shell.innerHTML=ThoughtMatch.render(); return; } if(game==='color'){ shell.innerHTML=ColorHarmony.render(); return; } if(game==='mirror'){ shell.innerHTML=MirrorGlow.render(); return; } if(game==='heartbeat'){ shell.innerHTML=HeartbeatDuel.render(); return; } if(game==='star'){ shell.innerHTML=StarPath.render(); return; } }
+    };
+
+    const RoomManager = {
+      peer:null,
+      conn:null,
+      connected:false,
+      roomCode:'',
+      role:'guest',
+      createRoom(){ const code=this.generateCode(); this.roomCode=code; this.role='host'; this.connectPeer('room-'+code); document.getElementById('room-status').textContent='Room created. Share the code with your partner.'; document.getElementById('room-code').textContent=code; document.getElementById('role-label').textContent='Host'; },
+      joinRoom(){ const code=document.getElementById('join-input').value.trim().toUpperCase(); if(!code) return; this.roomCode=code; this.role='guest'; this.connectPeer('guest-'+Math.random().toString(36).slice(2,7)); this.conn=this.peer.connect('room-'+code); this.conn.on('open',()=>{ this.connected=true; document.getElementById('room-status').textContent='Connected! You can play together now.'; document.getElementById('room-code').textContent=code; App.nav('menu'); App.saveMoment('Joined room '+code); }); this.conn.on('data',(data)=>this.handleMessage(data)); },
+      connectPeer(id){ if(this.peer) return; if(typeof Peer==='undefined'){ document.getElementById('room-status').textContent='PeerJS is unavailable right now.'; return; } this.peer=new Peer(id,{host:'0.peerjs.com',secure:true,port:443,path:'/'}); this.peer.on('open',()=>{ if(this.role==='host'){ this.peer.on('connection',(conn)=>{ this.conn=conn; this.connected=true; this.conn.on('data',(data)=>this.handleMessage(data)); document.getElementById('room-status').textContent='Connected! You can play together now.'; document.getElementById('room-code').textContent=this.roomCode; App.nav('menu'); App.saveMoment('Room ready for '+this.roomCode); }); } }); this.peer.on('error',(err)=>{ document.getElementById('room-status').textContent='Connection issue: '+err.type; }); },
+      send(payload){ if(this.conn&&this.connected){ this.conn.send(payload); } },
+      handleMessage(data){ if(!data) return; if(typeof data==='string'){ try{ data=JSON.parse(data); }catch(e){ return; } } if(data.type==='game-start'){ App.currentGame=data.game; App.level=data.level||App.level; App.renderGame(data.game); } else if(data.type==='game-action'){ if(data.game==='number'){ NumberDrift.applyRemote(data.payload); } else if(data.game==='thought'){ ThoughtMatch.applyRemote(data.payload); } else if(data.game==='color'){ ColorHarmony.applyRemote(data.payload); } else if(data.game==='mirror'){ MirrorGlow.applyRemote(data.payload); } else if(data.game==='heartbeat'){ HeartbeatDuel.applyRemote(data.payload); } else if(data.game==='star'){ StarPath.applyRemote(data.payload); } } },
+      generateCode(){ return Math.random().toString(36).slice(2,7).toUpperCase(); }
+    };
+
+    const NumberDrift = {
+      max:100,
+      secret:0,
+      attempts:0,
+      lastDistance:null,
+      render(){ return `
+        <div class="h-full flex flex-col justify-between gap-4">
+          <div class="glass rounded-3xl p-5">
+            <h2 class="text-xl font-semibold">Number Drift</h2>
+            <p class="text-sm text-charcoal/70">Level: ${App.level}</p>
+          </div>
+          <div class="glass rounded-3xl p-5 space-y-4">
+            <label class="text-sm text-charcoal/70">Set range</label>
+            <input id="nd-max" type="number" value="${this.max}" class="w-full rounded-2xl border border-charcoal/15 bg-white/70 px-3 py-3 outline-none" />
+            <button onclick="NumberDrift.setSecret()" class="btn w-full rounded-2xl bg-charcoal text-white py-3">Set Secret</button>
+          </div>
+          <div class="glass rounded-3xl p-5 space-y-4">
+            <label class="text-sm text-charcoal/70">Guess</label>
+            <input id="nd-guess" type="number" class="w-full rounded-2xl border border-charcoal/15 bg-white/70 px-3 py-3 outline-none" />
+            <button onclick="NumberDrift.guess()" class="btn w-full rounded-2xl bg-charcoal text-white py-3">Guess</button>
+            <div id="nd-feedback" class="text-sm text-charcoal/70">Pick a range and secret first.</div>
+          </div>
+          <button onclick="App.nav('menu')" class="btn rounded-2xl bg-white/70 py-3">Back to menu</button>
+        </div>`; },
+      setSecret(){ this.max=Math.max(2,parseInt(document.getElementById('nd-max').value,10)||100); this.secret=Math.floor(Math.random()*this.max)+1; this.attempts=0; this.lastDistance=null; document.getElementById('nd-feedback').textContent=`Secret set between 1 and ${this.max}.`; App.saveMoment(`Number Drift: secret ready at ${App.level} level.`); RoomManager.send({type:'game-action', game:'number', payload:{secret:this.secret,max:this.max,attempts:this.attempts}}); },
+      guess(){ const guess=parseInt(document.getElementById('nd-guess').value,10); if(isNaN(guess)) return; this.attempts+=1; const dist=Math.abs(guess-this.secret); if(dist===0){ AudioEngine.playChime(); document.getElementById('nd-feedback').textContent=`Perfect! It was ${this.secret} in ${this.attempts} tries.`; App.saveMoment(`Number Drift: solved in ${this.attempts} tries.`); RoomManager.send({type:'game-action',game:'number',payload:{result:'solved',secret:this.secret,attempts:this.attempts}}); return; } const msg=guess<this.secret?'Drift Higher':'Drift Lower'; document.getElementById('nd-feedback').textContent=`${msg}${this.lastDistance!==null?(dist<this.lastDistance?' • Warmer':' • Cooler'):''}`; this.lastDistance=dist; RoomManager.send({type:'game-action',game:'number',payload:{guess,attempts:this.attempts,dist}}); },
+      applyRemote(payload){ if(payload.secret){ this.secret=payload.secret; this.max=payload.max; this.attempts=payload.attempts||0; document.getElementById('nd-feedback').textContent=`Remote secret ready between 1 and ${this.max}.`; } else if(payload.result==='solved'){ document.getElementById('nd-feedback').textContent=`Your partner solved it in ${payload.attempts} tries.`; } }
+    };
+
+    const ThoughtMatch = {
+      prompt:'',
+      render(){ const prompts=['Ideal Sunday morning in one word','Our next vacation vibe','Favorite snack to share','A movie that feels like home','The color of joy']; this.prompt=prompts[Math.floor(Math.random()*prompts.length)]; return `
+        <div class="h-full flex flex-col gap-4">
+          <div class="glass rounded-3xl p-5"><h2 class="text-xl font-semibold">Thought Match</h2><p class="text-sm text-charcoal/70">Level: ${App.level}</p></div>
+          <div class="glass rounded-3xl p-5 space-y-3">
+            <div class="text-sm text-charcoal/60">Prompt</div>
+            <div class="text-lg font-semibold">${this.prompt}</div>
+            <input id="tm-answer" class="w-full rounded-2xl border border-charcoal/15 bg-white/70 px-3 py-3 outline-none" placeholder="Write your thought" />
+            <button onclick="ThoughtMatch.share()" class="btn w-full rounded-2xl bg-charcoal text-white py-3">Share</button>
+          </div>
+          <button onclick="App.nav('menu')" class="btn rounded-2xl bg-white/70 py-3">Back to menu</button>
+        </div>`; },
+      share(){ const answer=document.getElementById('tm-answer').value.trim(); if(!answer) return; App.saveMoment(`Thought Match: ${answer}`); RoomManager.send({type:'game-action',game:'thought',payload:{answer}}); document.getElementById('game-shell').innerHTML='<div class="glass rounded-3xl p-6 text-center"><h2 class="text-xl font-semibold mb-2">Shared!</h2><p class="text-sm text-charcoal/70">Your partner can now see your thought on their screen.</p></div>'; },
+      applyRemote(payload){ document.getElementById('game-shell').innerHTML=`<div class="glass rounded-3xl p-6 text-center"><h2 class="text-xl font-semibold mb-2">Your partner shared</h2><p class="text-sm text-charcoal/70">${payload.answer}</p></div>`; }
+    };
+
+    const ColorHarmony = {
+      p1Color:{h:0,s:50,l:50},
+      render(){ return `
+        <div class="h-full flex flex-col gap-4">
+          <div class="glass rounded-3xl p-5"><h2 class="text-xl font-semibold">Color Harmony</h2><p class="text-sm text-charcoal/70">Level: ${App.level}</p></div>
+          <div class="glass rounded-3xl p-5">
+            <div id="ch-preview" class="h-32 rounded-2xl mb-4" style="background:hsl(180,50%,50%)"></div>
+            <label class="text-xs uppercase tracking-[0.2em] text-charcoal/50">Hue</label>
+            <input id="ch-h" type="range" min="0" max="360" value="180" />
+            <label class="text-xs uppercase tracking-[0.2em] text-charcoal/50 mt-3">Saturation</label>
+            <input id="ch-s" type="range" min="0" max="100" value="50" />
+            <label class="text-xs uppercase tracking-[0.2em] text-charcoal/50 mt-3">Lightness</label>
+            <input id="ch-l" type="range" min="20" max="80" value="50" />
+            <button onclick="ColorHarmony.save()" class="btn mt-4 w-full rounded-2xl bg-charcoal text-white py-3">Lock Mood</button>
+          </div>
+          <button onclick="App.nav('menu')" class="btn rounded-2xl bg-white/70 py-3">Back to menu</button>
+        </div>`; },
+      save(){ const h=parseInt(document.getElementById('ch-h').value,10); const s=parseInt(document.getElementById('ch-s').value,10); const l=parseInt(document.getElementById('ch-l').value,10); this.p1Color={h,s,l}; RoomManager.send({type:'game-action',game:'color',payload:this.p1Color}); App.saveMoment(`Color Harmony: mood ${h}° set.`); document.getElementById('game-shell').innerHTML='<div class="glass rounded-3xl p-6 text-center"><h2 class="text-xl font-semibold mb-2">Mood locked</h2><p class="text-sm text-charcoal/70">Your partner sees the mood on their screen.</p></div>'; },
+      applyRemote(payload){ document.getElementById('game-shell').innerHTML=`<div class="glass rounded-3xl p-6 text-center"><h2 class="text-xl font-semibold mb-2">Your partner locked a mood</h2><p class="text-sm text-charcoal/70">Hue ${payload.h} • Saturation ${payload.s} • Lightness ${payload.l}</p></div>`; }
+    };
+
+    const MirrorGlow = {
+      left:'',
+      right:'',
+      render(){ return `
+        <div class="h-full flex flex-col gap-4">
+          <div class="glass rounded-3xl p-5"><h2 class="text-xl font-semibold">Mirror Glow</h2><p class="text-sm text-charcoal/70">Level: ${App.level}</p></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="glass rounded-2xl p-3">
+              <div class="text-xs uppercase tracking-[0.2em] text-charcoal/50 mb-2">Left side</div>
+              <button onclick="MirrorGlow.pick('left','calm')" class="btn w-full rounded-xl border border-charcoal/10 py-2 mb-2">Calm 🌙</button>
+              <button onclick="MirrorGlow.pick('left','playful')" class="btn w-full rounded-xl border border-charcoal/10 py-2 mb-2">Playful ✨</button>
+              <button onclick="MirrorGlow.pick('left','dreamy')" class="btn w-full rounded-xl border border-charcoal/10 py-2">Dreamy 🌫️</button>
+            </div>
+            <div class="glass rounded-2xl p-3">
+              <div class="text-xs uppercase tracking-[0.2em] text-charcoal/50 mb-2">Right side</div>
+              <button onclick="MirrorGlow.pick('right','calm')" class="btn w-full rounded-xl border border-charcoal/10 py-2 mb-2">Calm 🌙</button>
+              <button onclick="MirrorGlow.pick('right','playful')" class="btn w-full rounded-xl border border-charcoal/10 py-2 mb-2">Playful ✨</button>
+              <button onclick="MirrorGlow.pick('right','dreamy')" class="btn w-full rounded-xl border border-charcoal/10 py-2">Dreamy 🌫️</button>
+            </div>
+          </div>
+          <div id="mg-result" class="glass rounded-3xl p-4 text-sm text-charcoal/70">Pick a mood from both sides.</div>
+          <button onclick="App.nav('menu')" class="btn rounded-2xl bg-white/70 py-3">Back to menu</button>
+        </div>`; },
+      pick(side,choice){ if(side==='left') this.left=choice; else this.right=choice; const result=this.left&&this.right? `${this.left} + ${this.right} — ${this.left===this.right?'perfectly in sync':'a sweet little contrast'}`:'Pick a mood from both sides.'; document.getElementById('mg-result').textContent=result; RoomManager.send({type:'game-action',game:'mirror',payload:{left:this.left,right:this.right}}); App.saveMoment(`Mirror Glow: ${this.left||'?'}/${this.right||'?'}`); },
+      applyRemote(payload){ document.getElementById('mg-result').textContent=`Partner chose ${payload.left||'?'} and ${payload.right||'?'}`; }
+    };
+
+    const HeartbeatDuel = {
+      pattern:[],
+      attempt:[],
+      render(){ this.pattern=[]; this.attempt=[]; const len=App.level==='easy'?3:App.level==='hard'?6:4; for(let i=0;i<len;i++) this.pattern.push(Math.floor(Math.random()*3)+1); return `
+        <div class="h-full flex flex-col gap-4">
+          <div class="glass rounded-3xl p-5"><h2 class="text-xl font-semibold">Heartbeat Duel</h2><p class="text-sm text-charcoal/70">Level: ${App.level}</p></div>
+          <div class="glass rounded-3xl p-5 text-center">
+            <div id="hd-pattern" class="text-2xl font-semibold">${this.pattern.join(' • ')}</div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="HeartbeatDuel.tap(1)" class="btn glass rounded-2xl py-4 text-xl">1</button>
+            <button onclick="HeartbeatDuel.tap(2)" class="btn glass rounded-2xl py-4 text-xl">2</button>
+            <button onclick="HeartbeatDuel.tap(3)" class="btn glass rounded-2xl py-4 text-xl">3</button>
+          </div>
+          <button onclick="App.nav('menu')" class="btn rounded-2xl bg-white/70 py-3">Back to menu</button>
+        </div>`; },
+      tap(value){ this.attempt.push(value); if(this.attempt.length===this.pattern.length){ const success=this.attempt.every((v,i)=>v===this.pattern[i]); document.getElementById('hd-pattern').textContent=success?'Perfect beat!':'Try again'; App.saveMoment(`Heartbeat Duel: ${success?'matched':'missed'} beat.`); RoomManager.send({type:'game-action',game:'heartbeat',payload:{success}}); AudioEngine.playChime(); } },
+      applyRemote(payload){ document.getElementById('hd-pattern').textContent=payload.success?'Partner matched the beat!':'Partner missed the beat.'; }
+    };
+
+    const StarPath = {
+      options:['⭐','☀','🌙','✨','☁','🌟'],
+      chosen:'',
+      render(){ this.chosen=this.options[Math.floor(Math.random()*this.options.length)]; return `
+        <div class="h-full flex flex-col gap-4">
+          <div class="glass rounded-3xl p-5"><h2 class="text-xl font-semibold">Star Path</h2><p class="text-sm text-charcoal/70">Level: ${App.level}</p></div>
+          <div class="grid grid-cols-3 gap-3">
+            ${this.options.map(opt=>`<button onclick="StarPath.pick('${opt}')" class="btn glass rounded-2xl py-4 text-2xl">${opt}</button>`).join('')}
+          </div>
+          <div id="sp-feedback" class="glass rounded-3xl p-4 text-sm text-charcoal/70">Pick the star your partner chose.</div>
+          <button onclick="App.nav('menu')" class="btn rounded-2xl bg-white/70 py-3">Back to menu</button>
+        </div>`; },
+      pick(opt){ const success=opt===this.chosen; document.getElementById('sp-feedback').textContent=success?'Perfect path!':'Almost there — try another star.'; RoomManager.send({type:'game-action',game:'star',payload:{opt,success}}); App.saveMoment(`Star Path: ${opt} chosen.`); },
+      applyRemote(payload){ document.getElementById('sp-feedback').textContent=payload.success?'Your partner matched the star!':'Your partner tried another star.'; }
+    };
+
+    window.addEventListener('DOMContentLoaded',()=>{
+      App.init();
+      document.getElementById('create-room').addEventListener('click',()=>RoomManager.createRoom());
+      document.getElementById('join-room').addEventListener('click',()=>RoomManager.joinRoom());
+    });
+  </script>
+</body>
+</html>
